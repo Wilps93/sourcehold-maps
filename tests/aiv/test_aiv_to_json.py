@@ -54,7 +54,7 @@ class TestAIVConversion(unittest.TestCase):
             logger.debug(f"Обработка файла: {path}")
             aiv = AIV().from_file(str(path))
             json_data = to_json(aiv, include_extra=True)
-            output_path = OUTPUT_DIR / f"{path.name}.json"
+            output_path = OUTPUT_DIR / f"{path.name}.aivjson"
             output_path.write_text(json_data)
             self.assertTrue(output_path.exists(), f"Не удалось записать {output_path}")
 
