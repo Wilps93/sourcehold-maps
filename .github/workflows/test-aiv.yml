@@ -69,14 +69,15 @@ jobs:
 
       # Проверка релиза latest
       - name: Создание релиза, если не существует
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.repository == github.event.repository.full_name)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create latest --title "Latest Release" --notes "Автоматический релиз" --draft || true
-        if: github.event_name == 'push'
 
       # Загрузка активов в релиз
       - name: Загрузка активов
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.repository == github.event.repository.full_name)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
