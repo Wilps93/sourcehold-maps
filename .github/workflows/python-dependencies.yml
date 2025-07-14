@@ -77,6 +77,17 @@ jobs:
         name: dclimplode-py${{ matrix.python-version }}-${{ matrix.python-platform }}-${{ matrix.os }}-${{ matrix.platform }}
         path: |
           dist/dclimplode-*
+    - name: Install GitHub CLI
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gh
+      shell: bash
+    - name: Install GitHub CLI (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install gh -y
+      shell: pwsh
     - name: Ensure special latest release exists
       shell: bash
       env:

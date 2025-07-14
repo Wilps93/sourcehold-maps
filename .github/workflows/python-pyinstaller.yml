@@ -39,6 +39,17 @@ jobs:
           python -m pip install --upgrade wheel setuptools Cython
           pip install flake8 pytest
           pip install -r requirements.txt
+      - name: Install GitHub CLI
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+        shell: bash
+      - name: Install GitHub CLI (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install gh -y
+        shell: pwsh
       - name: Run pyinstaller
         shell: bash
         run: |
