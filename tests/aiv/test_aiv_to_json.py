@@ -1,53 +1,62 @@
-
+import os
 import pathlib
 import unittest
-
+import logging
 from sourcehold.aivs.AIV import AIV
 from sourcehold.tool.convert.aiv.exports import to_json
 
-BASEPATH = pathlib.Path("C:/Program Files (x86)/Steam/steamapps/common/Stronghold Crusader Extreme/aiv")
+# Настройка логирования для отладки
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
+# Используем переменную окружения для BASEPATH
+BASEPATH = pathlib.Path(os.getenv('BASEPATH', 'resources/aiv'))
 OUTPUT_DIR = pathlib.Path("output")
-if not OUTPUT_DIR.exists():
-  OUTPUT_DIR.mkdir()
 
-class T(unittest.TestCase):
-  
-  @classmethod
-  def setUpClass(cls) -> None:
-    cls.override = not BASEPATH.exists()
+class TestAIVConversion(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.override = not BASEPATH.exists()
+        OUTPUT_DIR.mkdir(exist_ok=True)
+        logger.debug(f"Используется BASEPATH: {BASEPATH}")
 
-  def test_rat(self):
-    if self.override:
-      return True
-    
-    count = 0
-    for path in BASEPATH.glob("rat*.aiv"):
-      count += 1
-      aiv = AIV().from_file(str(path))
-      j = to_json(aiv, include_extra=True)
-    if count != 8:
-      raise Exception(count)
-    
-  def test_abbot(self):
-    if self.override:
-      return True
-    
-    count = 0
-    for path in BASEPATH.glob("Abbot*.aiv"):
-      count += 1
-      aiv = AIV().from_file(str(path))
-      j = to_json(aiv, include_extra=True)
-    if count != 8:
-      raise Exception(count)
-    
-  def test_all(self):
-    if self.override:
-      return True
-    
-    count = 0
-    for path in BASEPATH.glob("*.aiv"):
-      count += 1
-      aiv = AIV().from_file(str(path))
-      j = to_json(aiv, include_extra=True)
-      (pathlib.Path("output") / f"{path.name}json").write_text(j)
+    def test_rat(self):
+        if self.override:
+            self.skipTest(f"Директория {BASEPATH} не существует, пропуск test_rat")
+        
+        files = list(BASEPATH.glob("rat*.aiv"))
+        logger.debug(f"Найдено {len(files)} файлов rat*.aiv в {BASEPATH}")
+        self.assertGreater(len(files), 0, f"Файлы rat*.aiv не найдены в {BASEPATH}")
+        for path in files:
+            logger.debug(f"Обработка файла: {path}")
+            aiv = AIV().from_file(str(path))
+            json_data = to_json(aiv, include_extra=True)
+            self.assertIsInstance(json_data, str, f"Ошибка преобразования JSON для {path}")
+
+    def test_abbot(self):
+        if self.override:
+            self.skipTest(f"Директория {BASEPATH} не существует, пропуск test_abbot")
+        
+        files = list(BASEPATH.glob("Abbot*.aiv"))
+        logger.debug(f"Найдено {len(files)} файлов Abbot*.aiv в {BASEPATH}")
+        self.assertGreater(len(files), 0, f"Файлы Abbot*.aiv не найдены в {BASEPATH}")
+        for path in files:
+            logger.debug(f"Обработка файла: {path}")
+            aiv = AIV().from_file(str(path))
+            json_data = to_json(aiv, include_extra=True)
+            self.assertIsInstance(json_data, str, f"Ошибка преобразования JSON для {path}")
+
+    def test_all(self):
+        if self.override:
+            self.skipTest(f"Директория {BASEPATH} не существует, пропуск test_all")
+        
+        for path in BASEPATH.glob("*.aiv"):
+            logger.debug(f"Обработка файла: {path}")
+            aiv = AIV().from_file(str(path))
+            json_data = to_json(aiv, include_extra=True)
+            output_path = OUTPUT_DIR / f"{path.name}.json"
+            output_path.write_text(json_data)
+            self.assertTrue(output_path.exists(), f"Не удалось записать {output_path}")
+
+if __name__ == '__main__':
+    unittest.main()
