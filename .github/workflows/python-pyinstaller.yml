@@ -4,9 +4,9 @@
 name: Python pyinstaller
 
 on:
-  workflow_dispatch: {}
   push:
-    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build_pyinstaller:
