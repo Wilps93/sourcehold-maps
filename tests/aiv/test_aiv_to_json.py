@@ -53,7 +53,7 @@ class TestAIVConversion(unittest.TestCase):
         for path in BASEPATH.glob("*.aiv"):
             logger.debug(f"Обработка файла: {path}")
             aiv = AIV().from_file(str(path))
-            json_data = to_json(aiv, include_extra=True)
+            json_data = to_json(aiv, include_extra=False)
             output_path = OUTPUT_DIR / f"{path.stem}.aivjson"
             output_path.write_text(json_data)
             self.assertTrue(output_path.exists(), f"Не удалось записать {output_path}")
