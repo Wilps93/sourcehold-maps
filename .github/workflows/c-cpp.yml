@@ -1,62 +1,55 @@
 # ВАЖНО: Для успешной сборки нужна папка compression с compile.sh и compile.bat
 # и исходниками библиотеки. Сейчас такой папки нет в репозитории!
 
-name: C/C++ CI
-
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
-
-jobs:
-  build:
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-        matrix:
-            os: [ubuntu-latest, windows-latest, macOS-latest]
-            # x32 не поддерживается на ubuntu и macOS
-            include:
-              - os: ubuntu-latest
-                platform: x64
-              - os: windows-latest
-                platform: x32
-              - os: windows-latest
-                platform: x64
-              - os: macOS-latest
-                platform: x64
-    steps:
-    - uses: actions/checkout@v4
-    - name: Enable Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1.3.0
-      if: matrix.os == 'windows-latest'
-    - name: Compile compression library
-      shell: cmd
-      run: |
-        cd compression
-        compile.bat
-        mv compressionlib-nocb.dll ..\compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.dll
-      if: matrix.os == 'windows-latest'
-    - name: Compile compression library
-      run: |
-        cd compression
-        chmod +x compile.sh
-        ./compile.sh
-        mv compressionlib-nocb.so ../compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.so
-      shell: bash
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
-      if: matrix.os == 'windows-latest'
-      with:
-        name: compressionlib-nocb-binaries
-        path: |
-          compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.dll
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-      with:
-        name: compressionlib-nocb-binaries
-        path: |
-          compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.so
+# name: C/C++ CI
+#
+# on:
+#   push:
+#   pull_request:
+#   workflow_dispatch:
+#
+# jobs:
+#   build:
+#
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#         matrix:
+#             # os: [ubuntu-latest, windows-latest, macOS-latest]
+#             # platform: [x32, x64]
+#             os: [windows-latest]
+#             platform: [x32, x64]
+#     steps:
+#     - uses: actions/checkout@v4
+#     - name: Enable Developer Command Prompt
+#       uses: ilammy/msvc-dev-cmd@v1.3.0
+#       if: matrix.os == 'windows-latest'
+#     - name: Compile compression library
+#       shell: cmd
+#       run: |
+#         cd compression
+#         compile.bat
+#         mv compressionlib-nocb.dll ..\compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.dll
+#       if: matrix.os == 'windows-latest'
+#     # - name: Compile compression library (Linux/macOS)
+#     #   run: |
+#     #     cd compression
+#     #     chmod +x compile.sh
+#     #     ./compile.sh
+#     #     mv compressionlib-nocb.so ../compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.so
+#     #   shell: bash
+#     #   if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+#     - name: Archive production artifacts
+#       uses: actions/upload-artifact@v4
+#       if: matrix.os == 'windows-latest'
+#       with:
+#         name: compressionlib-nocb-binaries
+#         path: |
+#           compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.dll
+#     # - name: Archive production artifacts (Linux/macOS)
+#     #   uses: actions/upload-artifact@v4
+#     #   if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
+#     #   with:
+#     #     name: compressionlib-nocb-binaries
+#     #     path: |
+#     #       compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.so
                     
