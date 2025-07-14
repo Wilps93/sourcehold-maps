@@ -20,13 +20,13 @@ import json
 
 
 def translate_offset(offset, invert_x, invert_y):
-  x = offset % AIV_WIDTH
-  y = offset // AIV_HEIGHT
+  x = offset // AIV_WIDTH
+  y = offset % AIV_WIDTH
   if invert_x:
     x = (AIV_WIDTH - 1) - x
   if invert_y:
-    y = (AIV_HEIGHT - 1) - y
-  return (y * AIV_HEIGHT) + x
+    y = (AIV_WIDTH - 1) - y
+  return (x * AIV_WIDTH) + y
 
 
 def to_json(aiv=None, path: str='', f=None, include_extra=False, invert_y=False, invert_x=True, skip_keep=False, report=False):
