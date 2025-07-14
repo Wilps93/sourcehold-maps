@@ -95,16 +95,16 @@ jobs:
       run: |
         # Set continue on error to true
         set +e
-        if [[ "$(gh --repo sourcehold/sourcehold-maps release view latest 2>&1)" == "release not found" ]]; then
+        if [[ "$(gh release view latest 2>&1)" == "release not found" ]]; then
           set -e
-          gh --repo sourcehold/sourcehold-maps release create latest --latest
+          gh release create latest --latest
         fi
     - name: Upload dclimplode wheel to special latest release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh --repo sourcehold/sourcehold-maps release upload latest dist/dclimplode-* --clobber
+        gh release upload latest dist/dclimplode-* --clobber
         
     - name: Ensure release exists
       if: github.ref_type == 'tag'
@@ -114,9 +114,9 @@ jobs:
       run: |
         # Set continue on error to true
         set +e
-        if [[ "$(gh --repo sourcehold/sourcehold-maps release view ${{ github.ref_name }} 2>&1)" == "release not found" ]]; then
+        if [[ "$(gh release view ${{ github.ref_name }} 2>&1)" == "release not found" ]]; then
           set -e
-          gh --repo sourcehold/sourcehold-maps release create ${{ github.ref_name }} --latest
+          gh release create ${{ github.ref_name }} --latest
         fi
     - name: Upload dclimplode wheel to release
       if: github.ref_type == 'tag'
@@ -124,4 +124,4 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh --repo sourcehold/sourcehold-maps release upload ${{ github.ref_name }} dist/dclimplode-*
+        gh release upload ${{ github.ref_name }} dist/dclimplode-*
