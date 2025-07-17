@@ -15,24 +15,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [windows-latest]
-        platform: [x86]
-        python-version: ['3.8']
-        python-platform: [x86]
-        # exclude:
-        #   - platform: x86
-        #     python-platform: x64
-        #   - os: ubuntu-latest
-        #     python-platform: x86
-        #   - os: ubuntu-latest
-        #     platform: x86
-        #   - os: macOS-latest
-        #     python-platform: x86
-        #   - os: macOS-latest
-        #     platform: x86
-        #   - platform: x64
-        #     python-platform: x86
+        os: [windows-latest, ubuntu-latest]
+        platform: [x64]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-platform: [x64]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -86,7 +72,7 @@ jobs:
     - name: Ensure special latest release exists
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Set continue on error to true
         set +e
@@ -97,14 +83,14 @@ jobs:
     - name: Upload wheel to special latest release
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --repo sourcehold/sourcehold-maps release upload latest dist/sourcehold*.whl --clobber
     - name: Ensure release exists
       if: github.ref_type == 'tag'
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Set continue on error to true
         set +e
@@ -116,7 +102,7 @@ jobs:
       if: github.ref_type == 'tag'
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --repo sourcehold/sourcehold-maps release upload ${{ github.ref_name }} dist/sourcehold*.whl
 
@@ -125,11 +111,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [windows-latest]
-        platform: [x86]
-        python-version: ['3.8']
-        python-platform: [x86]
+        os: [windows-latest, ubuntu-latest]
+        platform: [x64]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-platform: [x64]
     steps:
     - name: Download package
       uses: actions/download-artifact@v4.1.7

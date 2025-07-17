@@ -12,10 +12,17 @@ jobs:
             os: [ubuntu-latest, windows-latest, macOS-latest]
             platform: [x32, x64]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Enable Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1.3.0
       if: matrix.os == 'windows-latest'
+    - name: Install GitHub CLI
+      run: |
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sudo apt-get update && sudo apt-get install gh -y
+        elif [ "${{ runner.os }}" = "Windows" ]; then
+          choco install gh -y
+        fi
     - name: Compile compression library
       shell: cmd
       run: |
@@ -32,14 +39,14 @@ jobs:
       shell: bash
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: matrix.os == 'windows-latest'
       with:
         name: compressionlib-nocb-binaries
         path: |
           compressionlib-nocb-${{ matrix.os }}-${{ matrix.platform }}.dll
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
       with:
         name: compressionlib-nocb-binaries
