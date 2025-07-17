@@ -13,6 +13,11 @@ class AIV2JSONGui(tb.Window):
         self.geometry("600x400")
         self.resizable(True, True)
 
+        # Адаптивные колонки и строки
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_rowconfigure(6, weight=1)
+
         self.input_path = tb.StringVar()
         self.output_dir = tb.StringVar()
         self.batch_mode = tb.BooleanVar(value=False)
@@ -28,7 +33,6 @@ class AIV2JSONGui(tb.Window):
         self.input_entry.grid(row=2, column=0, padx=(10,0), pady=5, sticky=EW)
         self.input_btn = tb.Button(self, text="Обзор...", command=self.select_input, bootstyle=PRIMARY)
         self.input_btn.grid(row=2, column=1, padx=5, pady=5, sticky=EW)
-        self.grid_columnconfigure(0, weight=1)
 
         # Поле и кнопка выбора папки вывода
         self.output_label = tb.Label(self, text="Папка для вывода .aivjson файлов:")
@@ -45,7 +49,6 @@ class AIV2JSONGui(tb.Window):
         # Лог
         self.log = tb.ScrolledText(self, height=10, state='disabled')
         self.log.grid(row=6, column=0, columnspan=3, padx=10, pady=(0,10), sticky=NSEW)
-        self.grid_rowconfigure(6, weight=1)
 
     def select_input(self):
         if self.batch_mode.get():
