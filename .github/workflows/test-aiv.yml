@@ -1,4 +1,4 @@
-name: Build AIV to AIVJSON Converter (Windows)
+name: Build AIV to AIVJSON GUI (Windows)
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  build-converter:
+  build-gui-converter:
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -23,25 +23,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install --upgrade wheel setuptools
-          pip install pyinstaller
+          pip install pyinstaller ttkbootstrap
           pip install -r requirements.txt
 
-      - name: Build CLI converter .exe with PyInstaller
+      - name: Download wheel dependencies
         run: |
-          pyinstaller --onefile --name aiv2json_converter sourcehold/__main__.py --console
+          mkdir dist\deps
+          pip download -r requirements.txt -d dist\deps
+          pip download ttkbootstrap -d dist\deps
 
       - name: Build GUI converter .exe with PyInstaller
         run: |
           pyinstaller --onefile --name aiv2json_gui sourcehold/tool/convert/aiv/gui.py
 
-      - name: Upload CLI converter .exe as artifact
+      - name: Upload GUI converter and dependencies as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: aiv2json_converter-exe
-          path: dist/aiv2json_converter.exe
-
-      - name: Upload GUI converter .exe as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: aiv2json_gui-exe
-          path: dist/aiv2json_gui.exe
+          name: aiv2json_gui-full
+          path: |
+            dist/aiv2json_gui.exe
+            dist/deps/
