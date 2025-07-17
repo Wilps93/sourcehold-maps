@@ -16,6 +16,8 @@ SetCompressor lzma
 !include "nsDialogs.nsh"
 !include "LogicLib.nsh"
 !include "x64.nsh"
+!include "StrFunc.nsh"
+${StrLoc}
 
 ; MUI Settings
 !define MUI_ABORTWARNING
@@ -92,7 +94,7 @@ Section "Python Runtime" SEC02
   
   ${If} $0 == 0
     ; Python is installed, check version
-    ${If} $1 Contains "Python 3.8"
+    ${If} ${StrContains} "Python 3.8" $1
     ${OrIf} $1 Contains "Python 3.9"
     ${OrIf} $1 Contains "Python 3.10"
     ${OrIf} $1 Contains "Python 3.11"
