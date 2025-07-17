@@ -11,7 +11,7 @@ class AIV2JSONGui(tb.Window):
         super().__init__(themename="superhero")  # Современная тема Windows 10/11
         self.title("AIV to AIVJSON Converter")
         self.geometry("600x400")
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         self.input_path = tb.StringVar()
         self.output_dir = tb.StringVar()
