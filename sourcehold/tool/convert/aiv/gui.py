@@ -50,20 +50,25 @@ class AIV2JSONGui(tb.Window):
         # Log
         self.log = tb.ScrolledText(self, height=10, state='disabled')
         self.log.grid(row=6, column=0, columnspan=3, padx=10, pady=(0,10), sticky=NSEW)
+        self.grid_rowconfigure(6, weight=1)
 
         # Project by Sourcehold (clickable 'Sourcehold')
-        self.project_label = tb.Label(self, text="Project by ", anchor=W)
-        self.project_label.grid(row=7, column=0, sticky=W, padx=(10,0), pady=(0,2))
-        self.sourcehold_link = tb.Label(self, text="Sourcehold", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
-        self.sourcehold_link.grid(row=7, column=0, sticky=W, padx=(90,0), pady=(0,2))
-        self.sourcehold_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/sourcehold"))
+        project_frame = tb.Frame(self)
+        project_frame.grid(row=7, column=0, columnspan=3, sticky=W, padx=10, pady=(0,2))
+        project_label = tb.Label(project_frame, text="Project by ", anchor=W)
+        project_label.pack(side=LEFT)
+        sourcehold_link = tb.Label(project_frame, text="Sourcehold", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
+        sourcehold_link.pack(side=LEFT)
+        sourcehold_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/sourcehold"))
 
         # Code edited Wilps (clickable 'Wilps')
-        self.code_label = tb.Label(self, text="Code edited ", anchor=W)
-        self.code_label.grid(row=8, column=0, sticky=W, padx=(10,0), pady=(0,10))
-        self.wilps_link = tb.Label(self, text="Wilps", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
-        self.wilps_link.grid(row=8, column=0, sticky=W, padx=(85,0), pady=(0,10))
-        self.wilps_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://discordapp.com/users/306034441992667136"))
+        code_frame = tb.Frame(self)
+        code_frame.grid(row=8, column=0, columnspan=3, sticky=W, padx=10, pady=(0,10))
+        code_label = tb.Label(code_frame, text="Code edited ", anchor=W)
+        code_label.pack(side=LEFT)
+        wilps_link = tb.Label(code_frame, text="Wilps", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
+        wilps_link.pack(side=LEFT)
+        wilps_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://discordapp.com/users/306034441992667136"))
 
     def select_input(self):
         if self.batch_mode.get():
