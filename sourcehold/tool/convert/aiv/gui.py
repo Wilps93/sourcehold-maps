@@ -5,6 +5,7 @@ import pathlib
 import threading
 import os
 from sourcehold.tool.convert.aiv.exports import to_json
+import webbrowser
 
 class AIV2JSONGui(tb.Window):
     def __init__(self):
@@ -49,6 +50,20 @@ class AIV2JSONGui(tb.Window):
         # Log
         self.log = tb.ScrolledText(self, height=10, state='disabled')
         self.log.grid(row=6, column=0, columnspan=3, padx=10, pady=(0,10), sticky=NSEW)
+
+        # Project by Sourcehold (clickable 'Sourcehold')
+        self.project_label = tb.Label(self, text="Project by ", anchor=W)
+        self.project_label.grid(row=7, column=0, sticky=W, padx=(10,0), pady=(0,2))
+        self.sourcehold_link = tb.Label(self, text="Sourcehold", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
+        self.sourcehold_link.grid(row=7, column=0, sticky=W, padx=(90,0), pady=(0,2))
+        self.sourcehold_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/sourcehold"))
+
+        # Code edited Wilps (clickable 'Wilps')
+        self.code_label = tb.Label(self, text="Code edited ", anchor=W)
+        self.code_label.grid(row=8, column=0, sticky=W, padx=(10,0), pady=(0,10))
+        self.wilps_link = tb.Label(self, text="Wilps", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
+        self.wilps_link.grid(row=8, column=0, sticky=W, padx=(85,0), pady=(0,10))
+        self.wilps_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://discordapp.com/users/306034441992667136"))
 
     def select_input(self):
         if self.batch_mode.get():
