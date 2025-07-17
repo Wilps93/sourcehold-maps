@@ -12,34 +12,24 @@ class AIV2JSONGui(tk.Tk):
         self.geometry("600x400")
         self.resizable(False, False)
 
-        self.input_file = tk.StringVar()
-        self.input_dir = tk.StringVar()
+        self.input_path = tk.StringVar()
         self.output_dir = tk.StringVar()
         self.batch_mode = tk.BooleanVar(value=False)
 
-        # Фрейм выбора файла
-        tk.Label(self, text="Выберите .aiv файл:").pack(anchor='w', padx=10, pady=(10,0))
-        file_frame = tk.Frame(self)
-        file_frame.pack(fill='x', padx=10)
-        self.file_entry = tk.Entry(file_frame, textvariable=self.input_file, width=60)
-        self.file_entry.pack(side='left', fill='x', expand=True)
-        self.file_btn = tk.Button(file_frame, text="Обзор...", command=self.select_input_file)
-        self.file_btn.pack(side='left', padx=5)
-
         # Чекбокс пакетного режима
         batch_frame = tk.Frame(self)
-        batch_frame.pack(fill='x', padx=10, pady=(5,0))
-        self.batch_check = tk.Checkbutton(batch_frame, text="Пакетная обработка папки", variable=self.batch_mode, command=self.toggle_batch_mode)
+        batch_frame.pack(fill='x', padx=10, pady=(10,0))
+        self.batch_check = tk.Checkbutton(batch_frame, text="Пакетная обработка папки", variable=self.batch_mode)
         self.batch_check.pack(side='left')
 
-        # Фрейм выбора папки
-        tk.Label(self, text="Папка с .aiv файлами:").pack(anchor='w', padx=10, pady=(10,0))
-        dir_frame = tk.Frame(self)
-        dir_frame.pack(fill='x', padx=10)
-        self.dir_entry = tk.Entry(dir_frame, textvariable=self.input_dir, width=60, state='disabled')
-        self.dir_entry.pack(side='left', fill='x', expand=True)
-        self.dir_btn = tk.Button(dir_frame, text="Обзор...", command=self.select_input_dir, state='disabled')
-        self.dir_btn.pack(side='left', padx=5)
+        # Фрейм выбора файла/папки
+        tk.Label(self, text="Выберите .aiv файл или папку с .aiv файлами:").pack(anchor='w', padx=10, pady=(10,0))
+        input_frame = tk.Frame(self)
+        input_frame.pack(fill='x', padx=10)
+        self.input_entry = tk.Entry(input_frame, textvariable=self.input_path, width=60)
+        self.input_entry.pack(side='left', fill='x', expand=True)
+        self.input_btn = tk.Button(input_frame, text="Обзор...", command=self.select_input)
+        self.input_btn.pack(side='left', padx=5)
 
         # Фрейм выбора папки вывода
         tk.Label(self, text="Папка для вывода .aivjson файлов:").pack(anchor='w', padx=10, pady=(10,0))
@@ -53,27 +43,13 @@ class AIV2JSONGui(tk.Tk):
         self.log = scrolledtext.ScrolledText(self, height=10, state='disabled')
         self.log.pack(fill='both', padx=10, pady=(0,10), expand=True)
 
-    def toggle_batch_mode(self):
+    def select_input(self):
         if self.batch_mode.get():
-            self.dir_entry.config(state='normal')
-            self.dir_btn.config(state='normal')
-            self.file_entry.config(state='disabled')
-            self.file_btn.config(state='disabled')
+            path = filedialog.askdirectory(title="Выберите папку с .aiv файлами")
         else:
-            self.dir_entry.config(state='disabled')
-            self.dir_btn.config(state='disabled')
-            self.file_entry.config(state='normal')
-            self.file_btn.config(state='normal')
-
-    def select_input_file(self):
-        path = filedialog.askopenfilename(title="Выберите .aiv файл", filetypes=[("AIV files", "*.aiv"), ("All files", "*.*")])
+            path = filedialog.askopenfilename(title="Выберите .aiv файл", filetypes=[("AIV files", "*.aiv"), ("All files", "*.*")])
         if path:
-            self.input_file.set(path)
-
-    def select_input_dir(self):
-        path = filedialog.askdirectory(title="Выберите папку с .aiv файлами")
-        if path:
-            self.input_dir.set(path)
+            self.input_path.set(path)
 
     def select_output_dir(self):
         path = filedialog.askdirectory(title="Выберите папку для вывода .aivjson файлов")
@@ -81,18 +57,16 @@ class AIV2JSONGui(tk.Tk):
             self.output_dir.set(path)
 
     def start_conversion(self):
-        if self.batch_mode.get():
-            input_path = self.input_dir.get().strip()
-        else:
-            input_path = self.input_file.get().strip()
+        input_path = self.input_path.get().strip()
         output_dir = self.output_dir.get().strip()
+        batch = self.batch_mode.get()
         if not input_path:
             messagebox.showerror("Ошибка", "Не выбран файл или папка для конвертации!")
             return
         if not output_dir:
             messagebox.showerror("Ошибка", "Не выбрана папка для вывода!")
             return
-        threading.Thread(target=self.convert, args=(input_path, output_dir, self.batch_mode.get()), daemon=True).start()
+        threading.Thread(target=self.convert, args=(input_path, output_dir, batch), daemon=True).start()
 
     def log_message(self, msg):
         self.log.config(state='normal')
