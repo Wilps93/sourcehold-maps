@@ -15,11 +15,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [windows-latest]
-        platform: [x86]
-        python-version: ['3.13']
-        python-platform: [x86]
+        os: [windows-latest, ubuntu-latest]
+        platform: [x64]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-platform: [x64]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -39,6 +38,13 @@ jobs:
           python -m pip install --upgrade wheel setuptools Cython
           pip install flake8 pytest
           pip install -r requirements.txt
+      - name: Install GitHub CLI
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update && sudo apt-get install gh -y
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            choco install gh -y
+          fi
       - name: Run pyinstaller
         shell: bash
         run: |

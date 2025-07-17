@@ -15,11 +15,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest, macOS-latest]
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
         platform: [x64]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
-        python-platform: [x86, x64]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-platform: [x64]
         # exclude:
         #   - platform: x86
         #     python-platform: x64
@@ -52,6 +51,13 @@ jobs:
         python -m pip install --upgrade wheel setuptools Cython
         pip install flake8 pytest
         pip install -r requirements.txt
+    - name: Install GitHub CLI
+      run: |
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sudo apt-get update && sudo apt-get install gh -y
+        elif [ "${{ runner.os }}" = "Windows" ]; then
+          choco install gh -y
+        fi
     - name: Lint with flake8
       shell: bash
       run: |
@@ -80,7 +86,7 @@ jobs:
     - name: Ensure special latest release exists
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Set continue on error to true
         set +e
@@ -91,7 +97,7 @@ jobs:
     - name: Upload dclimplode wheel to special latest release
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --repo sourcehold/sourcehold-maps release upload latest dist/dclimplode-* --clobber
         
@@ -99,7 +105,7 @@ jobs:
       if: github.ref_type == 'tag'
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Set continue on error to true
         set +e
@@ -111,6 +117,6 @@ jobs:
       if: github.ref_type == 'tag'
       shell: bash
       env:
-        GH_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh --repo sourcehold/sourcehold-maps release upload ${{ github.ref_name }} dist/dclimplode-*
