@@ -1,0 +1,220 @@
+name: Build Installer
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'installer.nsi'
+      - 'sourcehold_converter_gui.py'
+      - 'sourcehold_converter_cli.py'
+      - 'build_installer.py'
+      - 'build_exe.py'
+      - 'download_dependencies.py'
+      - 'requirements.txt'
+  pull_request:
+    branches: [ main, master ]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    
+    steps:
+      # Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      # Настройка Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      # Включение Developer Command Prompt для MSVC
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.4.1
+        with:
+          arch: x64
+          
+      # Установка NSIS через winget (более надежный способ)
+      - name: Install NSIS
+        run: |
+          echo "Installing NSIS via winget..."
+          winget install NSIS.NSIS --accept-source-agreements --accept-package-agreements
+          
+          echo "Waiting for installation to complete..."
+          Start-Sleep -Seconds 10
+          
+          echo "Adding NSIS to PATH..."
+          $env:PATH += ";C:\Program Files (x86)\NSIS"
+          echo "NSIS_PATH=C:\Program Files (x86)\NSIS" >> $env:GITHUB_ENV
+          
+          echo "Verifying NSIS installation..."
+          makensis /VERSION
+          
+      # Установка Python зависимостей
+      - name: Install Python dependencies
+        run: |
+          echo "Installing Python dependencies..."
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade wheel setuptools
+          pip install -r requirements.txt
+          pip install pyinstaller
+          
+          echo "Verifying PyInstaller installation..."
+          pyinstaller --version
+          
+      # Загрузка системных зависимостей
+      - name: Download system dependencies
+        run: |
+          echo "Downloading system dependencies..."
+          python download_dependencies.py
+          
+          echo "Checking downloaded files..."
+          if (Test-Path "dependencies\python-3.11.8-amd64.exe") {
+            echo "✓ Python installer found"
+          } else {
+            echo "✗ Python installer not found"
+            exit 1
+          }
+          
+          if (Test-Path "dependencies\vc_redist.x64.exe") {
+            echo "✓ VC++ Redistributable found"
+          } else {
+            echo "✗ VC++ Redistributable not found"
+            exit 1
+          }
+          
+      # Сборка исполняемых файлов
+      - name: Build executables
+        run: |
+          echo "Building executables with PyInstaller..."
+          python build_exe.py
+          
+      # Проверка наличия собранных файлов
+      - name: Check built executables
+        run: |
+          echo "Checking built executables..."
+          
+          if (Test-Path "dist\sourcehold-converter.exe") {
+            echo "✓ GUI executable found"
+            $guiSize = (Get-ChildItem "dist\sourcehold-converter.exe").Length
+            echo "  Size: $([math]::Round($guiSize / 1MB, 2)) MB"
+          } else {
+            echo "✗ GUI executable not found"
+            exit 1
+          }
+          
+          if (Test-Path "dist\sourcehold-converter-cli.exe") {
+            echo "✓ CLI executable found"
+            $cliSize = (Get-ChildItem "dist\sourcehold-converter-cli.exe").Length
+            echo "  Size: $([math]::Round($cliSize / 1MB, 2)) MB"
+          } else {
+            echo "✗ CLI executable not found"
+            exit 1
+          }
+          
+          if (Test-Path "dist\sourcehold-converter-gui.exe") {
+            echo "✓ GUI executable (original) found"
+          } else {
+            echo "✗ GUI executable (original) not found"
+            exit 1
+          }
+          
+      # Создание инсталлера
+      - name: Build installer
+        run: |
+          echo "Building installer with NSIS..."
+          makensis installer.nsi
+          
+      # Проверка инсталлера
+      - name: Check installer
+        run: |
+          echo "Checking installer..."
+          if (Test-Path "SourceholdMapsConverter-Setup.exe") {
+            echo "✓ Installer created successfully"
+            $installerSize = (Get-ChildItem "SourceholdMapsConverter-Setup.exe").Length
+            echo "  Size: $([math]::Round($installerSize / 1MB, 2)) MB"
+          } else {
+            echo "✗ Installer not found"
+            exit 1
+          }
+          
+      # Создание релиза latest если не существует
+      - name: Ensure latest release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Ensuring latest release exists..."
+          gh release create latest --title "Latest Installer" --notes "Latest installer build" --draft || true
+          
+      # Загрузка инсталлера в релиз latest
+      - name: Upload installer to latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Uploading installer to latest release..."
+          gh release upload latest SourceholdMapsConverter-Setup.exe --clobber
+          
+      # Создание релиза для тегов
+      - name: Create release for tags
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Creating release for tag ${{ github.ref_name }}..."
+          gh release create ${{ github.ref_name }} --title "Release ${{ github.ref_name }}" --notes "Installer for version ${{ github.ref_name }}" --draft || true
+          
+      # Загрузка инсталлера в релиз тега
+      - name: Upload installer to tag release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Uploading installer to tag release..."
+          gh release upload ${{ github.ref_name }} SourceholdMapsConverter-Setup.exe --clobber
+          
+      # Загрузка артефактов
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-build
+          path: |
+            SourceholdMapsConverter-Setup.exe
+            dist/
+            dependencies/
+          retention-days: 30
+          
+      # Создание summary
+      - name: Create build summary
+        run: |
+          $installerSize = (Get-ChildItem 'SourceholdMapsConverter-Setup.exe').Length
+          $sizeMB = [math]::Round($installerSize / 1MB, 2)
+          
+          echo "## 🎉 Installer Build Summary" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "### ✅ Build completed successfully!" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Installer:** SourceholdMapsConverter-Setup.exe" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Size:** $sizeMB MB" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Includes:**" >> $env:GITHUB_STEP_SUMMARY
+          echo "- Python 3.11 runtime" >> $env:GITHUB_STEP_SUMMARY
+          echo "- Visual C++ Redistributable" >> $env:GITHUB_STEP_SUMMARY
+          echo "- All Python dependencies" >> $env:GITHUB_STEP_SUMMARY
+          echo "- GUI and CLI applications" >> $env:GITHUB_STEP_SUMMARY
+          echo "- AIV conversion support" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Download:** Available in the latest release" >> $env:GITHUB_STEP_SUMMARY
+          echo "" >> $env:GITHUB_STEP_SUMMARY
+          echo "**Build Info:**" >> $env:GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $env:GITHUB_STEP_SUMMARY
+          echo "- Triggered by: ${{ github.event_name }}" >> $env:GITHUB_STEP_SUMMARY
