@@ -4,3 +4,4 @@ dclimplode
 numpy
 build
 opencv-python
+pyinstaller
