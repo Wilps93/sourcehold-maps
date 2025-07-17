@@ -18,33 +18,34 @@ class AIV2JSONGui(tb.Window):
         self.batch_mode = tb.BooleanVar(value=False)
 
         # Чекбокс пакетного режима
-        batch_frame = tb.Frame(self)
-        batch_frame.pack(fill=X, padx=10, pady=(10,0))
-        self.batch_check = tb.Checkbutton(batch_frame, text="Пакетная обработка папки", variable=self.batch_mode, bootstyle="round-toggle")
-        self.batch_check.pack(side=LEFT)
+        self.batch_check = tb.Checkbutton(self, text="Пакетная обработка папки", variable=self.batch_mode, bootstyle="round-toggle")
+        self.batch_check.grid(row=0, column=0, columnspan=3, sticky=W, padx=10, pady=(10,0))
 
-        # Фрейм выбора файла/папки
-        tb.Label(self, text="Выберите .aiv файл или папку с .aiv файлами:").pack(anchor='w', padx=10, pady=(10,0))
-        input_frame = tb.Frame(self)
-        input_frame.pack(fill=X, padx=10)
-        self.input_entry = tb.Entry(input_frame, textvariable=self.input_path, width=60)
-        self.input_entry.pack(side=LEFT, fill=X, expand=True)
-        self.input_btn = tb.Button(input_frame, text="Обзор...", command=self.select_input, bootstyle=PRIMARY)
-        self.input_btn.pack(side=LEFT, padx=5)
+        # Поле и кнопка выбора файла/папки
+        self.input_label = tb.Label(self, text="Выберите .aiv файл или папку с .aiv файлами:")
+        self.input_label.grid(row=1, column=0, sticky=W, padx=10, pady=(10,0))
+        self.input_entry = tb.Entry(self, textvariable=self.input_path, width=60)
+        self.input_entry.grid(row=2, column=0, padx=(10,0), pady=5, sticky=EW)
+        self.input_btn = tb.Button(self, text="Обзор...", command=self.select_input, bootstyle=PRIMARY)
+        self.input_btn.grid(row=2, column=1, padx=5, pady=5, sticky=EW)
+        self.grid_columnconfigure(0, weight=1)
 
-        # Фрейм выбора папки вывода
-        tb.Label(self, text="Папка для вывода .aivjson файлов:").pack(anchor='w', padx=10, pady=(10,0))
-        output_frame = tb.Frame(self)
-        output_frame.pack(fill=X, padx=10)
-        self.output_entry = tb.Entry(output_frame, textvariable=self.output_dir, width=60)
-        self.output_entry.pack(side=LEFT, fill=X, expand=True)
-        self.output_btn = tb.Button(output_frame, text="Обзор...", command=self.select_output_dir, bootstyle=PRIMARY)
-        self.output_btn.pack(side=LEFT, padx=5)
+        # Поле и кнопка выбора папки вывода
+        self.output_label = tb.Label(self, text="Папка для вывода .aivjson файлов:")
+        self.output_label.grid(row=3, column=0, sticky=W, padx=10, pady=(10,0))
+        self.output_entry = tb.Entry(self, textvariable=self.output_dir, width=60)
+        self.output_entry.grid(row=4, column=0, padx=(10,0), pady=5, sticky=EW)
+        self.output_btn = tb.Button(self, text="Обзор...", command=self.select_output_dir, bootstyle=PRIMARY)
+        self.output_btn.grid(row=4, column=1, padx=5, pady=5, sticky=EW)
 
-        tb.Button(self, text="Конвертировать", command=self.start_conversion, bootstyle=SUCCESS).pack(pady=10)
+        # Кнопка конвертации
+        self.convert_btn = tb.Button(self, text="Конвертировать", command=self.start_conversion, bootstyle=SUCCESS)
+        self.convert_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
+        # Лог
         self.log = tb.ScrolledText(self, height=10, state='disabled')
-        self.log.pack(fill='both', padx=10, pady=(0,10), expand=True)
+        self.log.grid(row=6, column=0, columnspan=3, padx=10, pady=(0,10), sticky=NSEW)
+        self.grid_rowconfigure(6, weight=1)
 
     def select_input(self):
         if self.batch_mode.get():
