@@ -14,16 +14,19 @@ def convert_aiv(args):
      return None
   
   inp = args.input
-  if inp != '-' and not pathlib.Path(inp).exists():
-      raise Exception(f"file does not exist: {inp}")
+  inp_path = pathlib.Path(inp)
+  if inp != '-' and not inp_path.exists():
+      raise Exception(f"file or folder does not exist: {inp}")
   inp_invert_y = args.from_invert_y
   inp_invert_x = args.from_invert_x
   inp_format = args.from_format
   if not inp_format:
-    if inp.endswith(".aiv"):
+    if inp_path.is_file() and inp.endswith(".aiv"):
       inp_format = 'aiv'
-    elif inp.endswith(".json"):
+    elif inp_path.is_file() and inp.endswith(".json"):
       inp_format = "json"
+    elif inp_path.is_dir():
+      inp_format = 'dir'
 
   out_invert_y = args.to_invert_y
   out_invert_x = args.to_invert_x
@@ -34,6 +37,8 @@ def convert_aiv(args):
       out_format = "json"
     elif inp_format == "json":
       out_format = "aiv"
+    elif inp_format == "dir":
+      out_format = "json"
   else:
     out_format_tokens = out_format.split(",")
     if 'inverty' in out_format_tokens:
@@ -42,21 +47,25 @@ def convert_aiv(args):
       out_invert_x = True
     if 'skipkeep' in out_format_tokens:
       out_skip_keep = True  
-  if args.output == None:
-    if out_format == "json":
-      args.output = "-"
-    elif out_format == "aiv":
-      if inp == "-":
-        args.output = "output.aiv"
-      else:
-        args.output = f"{pathlib.Path(inp).name}.aiv"
-    #args.output = f"{pathlib.Path(inp).name}.json"
-  
-  if args.debug:
-    print(f"converting '{inp_format}: inverty={inp_invert_y}' file '{inp}' to '{out_format}: inverty={out_invert_y}' file '{args.output}'")
-  
-  if inp_format.startswith('aiv') and out_format.startswith("json"):
 
+  # Пакетная обработка папки
+  if inp_path.is_dir():
+    output_dir = pathlib.Path(args.output) if args.output else inp_path
+    output_dir.mkdir(parents=True, exist_ok=True)
+    aiv_files = list(inp_path.glob('*.aiv'))
+    if not aiv_files:
+      print(f"No .aiv files found in {inp_path}", file=sys.stderr)
+      return False
+    for aiv_file in aiv_files:
+      out_file = output_dir / (aiv_file.stem + '.aivjson')
+      if args.debug:
+        print(f"Converting {aiv_file} -> {out_file}")
+      conv = to_json(path = str(aiv_file), include_extra=args.extra, report=args.debug, invert_y=out_invert_y, invert_x=out_invert_x, skip_keep=out_skip_keep)
+      out_file.write_text(conv)
+    return True
+
+  # Одиночный файл
+  if inp_format.startswith('aiv') and out_format.startswith("json"):
     conv = to_json(path = inp, include_extra=args.extra, report=args.debug, invert_y=out_invert_y, invert_x=out_invert_x, skip_keep=out_skip_keep)
     if args.verify:
       target = json.dumps(json.loads(pathlib.Path(args.verify).read_text()), indent=2)
