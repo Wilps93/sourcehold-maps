@@ -151,7 +151,9 @@ jobs:
           
       # Создание инсталлера
       - name: Build installer
-        run: '"C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi'
+        shell: powershell
+        run: |
+          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
           
       # Проверка инсталлера
       - name: Check installer
