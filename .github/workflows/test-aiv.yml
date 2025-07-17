@@ -26,20 +26,12 @@ jobs:
           pip install pyinstaller ttkbootstrap
           pip install -r requirements.txt
 
-      - name: Download wheel dependencies
-        run: |
-          mkdir dist\deps
-          pip download -r requirements.txt -d dist\deps
-          pip download ttkbootstrap -d dist\deps
-
       - name: Build GUI converter .exe with PyInstaller
         run: |
           pyinstaller --onefile --name aiv2json_gui sourcehold/tool/convert/aiv/gui.py
 
-      - name: Upload GUI converter and dependencies as artifact
+      - name: Upload GUI converter as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: aiv2json_gui-full
-          path: |
-            dist/aiv2json_gui.exe
-            dist/deps/
+          name: aiv2json_gui
+          path: dist/aiv2json_gui.exe
