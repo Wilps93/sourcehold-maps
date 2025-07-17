@@ -4,8 +4,31 @@ Reverse engineering the map file format of the 2D Stronghold Games.
 ### Project Goal <!-- omit in toc -->
 The goal is to understand the [map file format](#map-file-format) of Stronghold, Stronghold Crusader and Stronghold Crusader Extreme and to be able to [manipulate](#tools) it.
 
+## 🚀 Unified Windows Installer
+
+**NEW!** We now provide a unified Windows installer that automatically installs all dependencies and provides both GUI and CLI interfaces for map conversion and AIV file processing.
+
+### Quick Start
+1. Download the latest installer from [Releases](https://github.com/sourcehold/sourcehold-maps/releases)
+2. Run `SourceholdMapsConverter-Setup.exe`
+3. Follow the installation wizard
+4. Use the desktop shortcuts to launch the converter
+
+### Features
+- ✅ **Automatic dependency installation** (Python 3.11, Visual C++ Redistributable)
+- ✅ **GUI interface** for easy file selection and conversion
+- ✅ **CLI interface** for command-line usage
+- ✅ **Map file support** (pack/unpack .map, .sav, .msv files)
+- ✅ **AIV conversion** (.AIV to .AIVJSON format)
+- ✅ **Desktop shortcuts** for quick access
+- ✅ **Silent installation** option available
+
+### Build Status
+[![Build Installer](https://github.com/sourcehold/sourcehold-maps/workflows/Build%20Installer/badge.svg)](https://github.com/sourcehold/sourcehold-maps/actions?query=workflow%3A%22Build+Installer%22)
+
 # Table of Contents <!-- omit in toc -->
 
+- [🚀 Unified Windows Installer](#-unified-windows-installer)
 - [Map File Format](#map-file-format)
 - [Tools](#tools)
   - [Online Map Unpacking, Repacking and Exploring](#online-map-unpacking-repacking-and-exploring)
@@ -16,7 +39,14 @@ The goal is to understand the [map file format](#map-file-format) of Stronghold,
     - [Map Preview Image (CL)](#map-preview-image-cl)
     - [Modify Map Properties](#modify-map-properties)
     - [Installation](#installation)
- 
+  - [Windows Installer](#windows-installer)
+    - [Installation](#installation-1)
+    - [Usage](#usage)
+    - [Features](#features)
+    - [Troubleshooting](#troubleshooting)
+- [Development](#development)
+  - [Building the Installer](#building-the-installer)
+  - [GitHub Actions](#github-actions)
 - [Contribute](#contribute)
 
 # Map File Format
@@ -87,6 +117,82 @@ Then install using pip:
 python -m pip install sourcehold.whl
 ```
 
+## Windows Installer
+
+### Installation
+1. **Download** the latest installer from [Releases](https://github.com/sourcehold/sourcehold-maps/releases)
+2. **Run** `SourceholdMapsConverter-Setup.exe` as administrator
+3. **Follow** the installation wizard
+4. **Use** desktop shortcuts to launch the converter
+
+### Usage
+
+#### GUI Interface
+- Double-click the desktop shortcut **"Sourcehold Maps Converter"**
+- Select input files (map files or AIV files)
+- Choose operation (Unpack, Pack, or Convert AIV)
+- Click **"Start Conversion"**
+
+#### CLI Interface
+```bash
+# Open Command Prompt and navigate to installation directory
+cd "C:\Program Files\Sourcehold Maps Converter"
+
+# Unpack map files
+sourcehold-converter-cli.exe --unpack "mymap.map"
+
+# Pack map folders
+sourcehold-converter-cli.exe --pack "mymap/"
+
+# Convert AIV files
+sourcehold-converter-cli.exe --convert-aiv "myai.aiv"
+```
+
+### Features
+- **Automatic Dependencies**: Installs Python 3.11 and Visual C++ Redistributable
+- **GUI Interface**: User-friendly interface for file selection and conversion
+- **CLI Interface**: Command-line interface for automation
+- **Map Support**: Pack/unpack .map, .sav, .msv files
+- **AIV Conversion**: Convert .AIV files to .AIVJSON format
+- **Desktop Shortcuts**: Quick access to both GUI and CLI
+- **Silent Installation**: Available for automated deployment
+
+### Troubleshooting
+- **Installation fails**: Run as administrator
+- **GUI doesn't start**: Check if Python is properly installed
+- **Missing dependencies**: Re-run the installer
+- **Permission errors**: Ensure you have admin rights
+
+## Development
+
+### Building the Installer
+```bash
+# Clone the repository
+git clone https://github.com/sourcehold/sourcehold-maps.git
+cd sourcehold-maps
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Download system dependencies
+python download_dependencies.py
+
+# Build executables
+python build_exe.py
+
+# Build installer
+python build_installer.py
+```
+
+### GitHub Actions
+The installer is automatically built using GitHub Actions:
+
+- **Automatic builds** on push to main/master
+- **Manual builds** via workflow_dispatch
+- **Release builds** when tags are created
+- **Artifacts** available for download
+
+See [GITHUB_ACTIONS_README.md](GITHUB_ACTIONS_README.md) for detailed information.
 
 # Contribute
 There are multiple ways to contribute to this project, see [Contributing.md](/CONTRIBUTING.md) for more information.
