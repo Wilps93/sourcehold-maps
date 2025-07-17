@@ -1,93 +1,37 @@
-name: Тестирование и загрузка AIV
+name: Build AIV to AIVJSON Converter (Windows)
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: write  # Необходимо для загрузки активов релиза
 
 jobs:
-  test-and-upload:
-    runs-on: ubuntu-latest
-
+  build-converter:
+    runs-on: windows-latest
     steps:
-      # Клонирование репозитория
-      - name: Клонирование кода
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Настройка Python
-      - name: Установка Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          architecture: 'x64'
 
-      # Установка зависимостей
-      - name: Установка зависимостей
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install numpy
-          pip install .  # Установка sourcehold-maps
+          python -m pip install --upgrade wheel setuptools
+          pip install pyinstaller
+          pip install -r requirements.txt
 
-      # Установка GitHub CLI
-      - name: Установка GitHub CLI
+      - name: Build converter .exe with PyInstaller
         run: |
-          sudo apt-get update && sudo apt-get install gh -y
+          pyinstaller --onefile --name aiv2json_converter sourcehold/__main__.py --console
 
-      # Проверка наличия .aiv файлов
-      - name: Проверка файлов в resources/aiv
-        run: |
-          ls -l resources/aiv/
-          if [ ! -d "resources/aiv" ] || [ -z "$(ls -A resources/aiv/*.aiv)" ]; then
-            echo "Ошибка: папка resources/aiv пуста или не содержит .aiv файлов"
-            exit 1
-          fi
-
-      # Запуск тестов
-      - name: Запуск юнит-тестов
-        env:
-          BASEPATH: ./resources/aiv
-        run: |
-          python -m unittest tests/aiv/test_aiv_to_json.py -v || true
-
-      # Создание файлов для загрузки
-      - name: Создание файлов в dist
-        run: |
-          mkdir -p dist
-          # Пример: копируем .aiv файлы в dist как sourcehold*
-          for file in resources/aiv/*.aiv; do
-            cp "$file" "dist/sourcehold-$(basename "$file")"
-          done
-          ls -l dist/
-
-      # Проверка релиза latest
-      - name: Создание релиза, если не существует
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create latest --title "Latest Release" --notes "Автоматический релиз" --draft || true
-        if: github.event_name == 'push'
-
-      # Загрузка активов в релиз
-      - name: Загрузка активов
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload latest dist/sourcehold* --clobber
-        if: github.event_name == 'push'
-
-      # Загрузка результатов
-      - name: Загрузка результатов
-        if: always()
+      - name: Upload converter .exe as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: test-output
-          path: |
-            output/
-            dist/
-            *.log
+          name: aiv2json_converter-exe
+          path: dist/aiv2json_converter.exe
