@@ -41,7 +41,7 @@ class AIV2JSONGui(tb.Window):
 
         tb.Button(self, text="Конвертировать", command=self.start_conversion, bootstyle=SUCCESS).pack(pady=10)
 
-        self.log = tb.ScrolledText(self, height=10, state='disabled', bootstyle=INFO)
+        self.log = tb.ScrolledText(self, height=10, state='disabled')
         self.log.pack(fill='both', padx=10, pady=(0,10), expand=True)
 
     def select_input(self):
