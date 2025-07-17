@@ -28,7 +28,7 @@ jobs:
 
       - name: Build GUI converter .exe with PyInstaller
         run: |
-          pyinstaller --onefile --name aiv2json_gui sourcehold/tool/convert/aiv/gui.py
+          pyinstaller --onefile --noconsole --name aiv2json_gui sourcehold/tool/convert/aiv/gui.py
 
       - name: Upload GUI converter as artifact
         uses: actions/upload-artifact@v4
