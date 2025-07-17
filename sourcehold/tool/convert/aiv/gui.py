@@ -36,8 +36,10 @@ class AIV2JSONGui(tb.Window):
         tb.Label(self, text="Папка для вывода .aivjson файлов:").pack(anchor='w', padx=10, pady=(10,0))
         output_frame = tb.Frame(self)
         output_frame.pack(fill=X, padx=10)
-        tb.Entry(output_frame, textvariable=self.output_dir, width=60).pack(side=LEFT, fill=X, expand=True)
-        tb.Button(output_frame, text="Обзор...", command=self.select_output_dir, bootstyle=PRIMARY).pack(side=LEFT, padx=5)
+        self.output_entry = tb.Entry(output_frame, textvariable=self.output_dir, width=60)
+        self.output_entry.pack(side=LEFT, fill=X, expand=True)
+        self.output_btn = tb.Button(output_frame, text="Обзор...", command=self.select_output_dir, bootstyle=PRIMARY)
+        self.output_btn.pack(side=LEFT, padx=5)
 
         tb.Button(self, text="Конвертировать", command=self.start_conversion, bootstyle=SUCCESS).pack(pady=10)
 
@@ -116,3 +118,6 @@ class AIV2JSONGui(tb.Window):
 if __name__ == "__main__":
     app = AIV2JSONGui()
     app.mainloop()
+
+# Для PyInstaller: используйте опцию --noconsole чтобы не было окна консоли:
+# pyinstaller --onefile --noconsole --name aiv2json_gui sourcehold/tool/convert/aiv/gui.py
