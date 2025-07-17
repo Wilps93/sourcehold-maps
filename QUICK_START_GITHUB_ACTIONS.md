@@ -31,9 +31,13 @@ git push origin main
 #### Ручной запуск:
 1. Перейдите на GitHub в ваш репозиторий
 2. Нажмите вкладку **Actions**
-3. Выберите **Build Installer**
+3. Выберите **Build Installer** или **Build Installer (Quick Test)**
 4. Нажмите **Run workflow**
-5. Выберите ветку и нажмите **Run workflow**
+5. Настройте параметры:
+   - **Branch**: выберите ветку (main, master, develop)
+   - **Build Type**: выберите тип сборки (для основного workflow)
+   - **Upload to Release**: включите/выключите загрузку в релиз
+6. Нажмите **Run workflow**
 
 ### 3. Получение результата
 
