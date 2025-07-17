@@ -57,11 +57,12 @@ def to_json(aiv=None, path: str='', f=None, include_extra=False, invert_y=False,
     step_count = step_count_max
 
   pauses_raw = aiv.directory[INDEX_PAUSES].get_data()
-  if len(pauses_raw) != 50 * 4:
-    print(f"WARNING: pauses is not expected size of {50*4} but {len(pauses_raw)}, adjusting", file=sys.stderr)
-    pauses = list(struct.unpack(PAUSES_STRUCT_FORMAT_10, pauses_raw))  
+  if len(pauses_raw) == 50 * 4:
+    pauses = list(struct.unpack(PAUSES_STRUCT_FORMAT_50, pauses_raw))
+  elif len(pauses_raw) == 10 * 4:
+    pauses = list(struct.unpack(PAUSES_STRUCT_FORMAT_10, pauses_raw))
   else:
-    pauses = list(struct.unpack(PAUSES_STRUCT_FORMAT_50, pauses_raw))  
+    pauses = []
 
   units = get_units_matrix(list(struct.unpack(f"<{24*10}i", aiv.directory[INDEX_MISC].get_data())))
 
