@@ -34,6 +34,11 @@ jobs:
           pip install numpy
           pip install .  # Установка sourcehold-maps
 
+      # Установка GitHub CLI
+      - name: Установка GitHub CLI
+        run: |
+          sudo apt-get update && sudo apt-get install gh -y
+
       # Проверка наличия .aiv файлов
       - name: Проверка файлов в resources/aiv
         run: |
