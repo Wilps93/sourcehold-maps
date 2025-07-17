@@ -177,7 +177,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Main application files and shortcuts"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Python 3.11 runtime (required for the application)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Visual C++ Redistributable 2015-2022 (required for Python packages)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Python packages: Pillow, pymem, dclimplode, numpy, opencv-python"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Python packages: Pillow, pymem, dclimplode, numpy, opencv-python (includes AIV conversion support)"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function un.onUninstSuccess

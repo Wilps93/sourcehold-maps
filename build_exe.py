@@ -58,6 +58,8 @@ def main():
         "--hidden-import=tkinter.filedialog",
         "--hidden-import=tkinter.messagebox",
         "--hidden-import=tkinter.scrolledtext",
+        "--hidden-import=sourcehold.aivs",
+        "--hidden-import=sourcehold.tool.convert.aiv",
         "sourcehold_converter_gui.py"
     ]
     
@@ -77,6 +79,8 @@ def main():
         "--hidden-import=dclimplode",
         "--hidden-import=numpy",
         "--hidden-import=cv2",
+        "--hidden-import=sourcehold.aivs",
+        "--hidden-import=sourcehold.tool.convert.aiv",
         "sourcehold_converter_cli.py"
     ]
     

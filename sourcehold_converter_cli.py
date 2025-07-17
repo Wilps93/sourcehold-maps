@@ -102,6 +102,37 @@ def pack_folder(input_path, output_path, verbose=False):
     
     return True
 
+def convert_aiv(input_path, output_path, verbose=False, include_extra=False):
+    """Convert AIV file to AIVJSON"""
+    if verbose:
+        print(f"Loading AIV file: {input_path}")
+    
+    try:
+        from sourcehold.aivs.AIV import AIV
+        from sourcehold.tool.convert.aiv.exports import to_json
+    except ImportError as e:
+        print(f"ERROR: AIV conversion not available: {e}")
+        return False
+    
+    aiv = AIV().from_file(input_path)
+    
+    input_name = Path(input_path).stem
+    output_file = Path(output_path) / f"{input_name}.aivjson"
+    
+    if verbose:
+        print(f"Converting to: {output_file}")
+    
+    # Convert to JSON
+    json_data = to_json(aiv, include_extra=include_extra)
+    
+    # Write to file
+    output_file.write_text(json_data, encoding='utf-8')
+    
+    if verbose:
+        print(f"Successfully converted {input_name} to AIVJSON")
+    
+    return True
+
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(
@@ -114,6 +145,12 @@ Examples:
   
   # Pack a folder into a map file
   python sourcehold_converter_cli.py pack --input ./map_folder --output ./output
+  
+  # Convert AIV to AIVJSON
+  python sourcehold_converter_cli.py aiv --input ai1.aiv --output ./output
+  
+  # Convert AIV with extra information
+  python sourcehold_converter_cli.py aiv --input ai1.aiv --output ./output --include-extra
   
   # Verbose mode
   python sourcehold_converter_cli.py unpack --input map1.map --output ./output --verbose
@@ -133,6 +170,13 @@ Examples:
     pack_parser.add_argument('--input', '-i', required=True, help='Input folder')
     pack_parser.add_argument('--output', '-o', required=True, help='Output directory')
     pack_parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    
+    # AIV command
+    aiv_parser = subparsers.add_parser('aiv', help='Convert AIV file to AIVJSON')
+    aiv_parser.add_argument('--input', '-i', required=True, help='Input AIV file (.aiv)')
+    aiv_parser.add_argument('--output', '-o', required=True, help='Output directory')
+    aiv_parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    aiv_parser.add_argument('--include-extra', action='store_true', help='Include extra AIV information')
     
     args = parser.parse_args()
     
@@ -169,6 +213,11 @@ Examples:
                 sys.exit(1)
             
             success = pack_folder(args.input, args.output, args.verbose)
+        elif args.command == 'aiv':
+            if not args.input.lower().endswith('.aiv'):
+                print("WARNING: Input file doesn't have expected extension (.aiv)")
+            
+            success = convert_aiv(args.input, args.output, args.verbose, args.include_extra)
         
         if success:
             print("Operation completed successfully!")

@@ -81,6 +81,8 @@ class SourceholdConverterGUI:
                        variable=self.operation_var, value="unpack").pack(side=tk.LEFT)
         ttk.Radiobutton(operation_frame, text="Pack (Folder → .map/.sav/.msv)", 
                        variable=self.operation_var, value="pack").pack(side=tk.LEFT, padx=(10, 0))
+        ttk.Radiobutton(operation_frame, text="Convert AIV (.aiv → .aivjson)", 
+                       variable=self.operation_var, value="aiv").pack(side=tk.LEFT, padx=(10, 0))
         
         # Convert button
         self.convert_btn = ttk.Button(main_frame, text="Convert", command=self.start_conversion)
@@ -132,11 +134,21 @@ class SourceholdConverterGUI:
             
     def browse_input(self):
         """Browse for input file or directory"""
-        if self.operation_var.get() == "unpack":
+        operation = self.operation_var.get()
+        
+        if operation == "unpack":
             filename = filedialog.askopenfilename(
                 title="Select map file",
                 filetypes=[
                     ("Map files", "*.map *.sav *.msv"),
+                    ("All files", "*.*")
+                ]
+            )
+        elif operation == "aiv":
+            filename = filedialog.askopenfilename(
+                title="Select AIV file",
+                filetypes=[
+                    ("AIV files", "*.aiv"),
                     ("All files", "*.*")
                 ]
             )
@@ -203,6 +215,8 @@ class SourceholdConverterGUI:
             
             if operation == "unpack":
                 self.unpack_file(input_path, output_path)
+            elif operation == "aiv":
+                self.convert_aiv(input_path, output_path)
             else:
                 self.pack_folder(input_path, output_path)
                 
@@ -246,6 +260,32 @@ class SourceholdConverterGUI:
         save_map(map_obj, str(output_file))
         
         self.log(f"Successfully packed {input_name}")
+        
+    def convert_aiv(self, input_path, output_path):
+        """Convert AIV file to AIVJSON"""
+        self.log("Loading AIV file...")
+        
+        try:
+            from sourcehold.aivs.AIV import AIV
+            from sourcehold.tool.convert.aiv.exports import to_json
+        except ImportError as e:
+            self.log(f"ERROR: AIV conversion not available: {e}")
+            raise Exception("AIV conversion requires additional dependencies")
+        
+        aiv = AIV().from_file(input_path)
+        
+        input_name = Path(input_path).stem
+        output_file = Path(output_path) / f"{input_name}.aivjson"
+        
+        self.log(f"Converting to: {output_file}")
+        
+        # Convert to JSON with extra information
+        json_data = to_json(aiv, include_extra=True)
+        
+        # Write to file
+        output_file.write_text(json_data, encoding='utf-8')
+        
+        self.log(f"Successfully converted {input_name} to AIVJSON")
         
     def on_closing(self):
         """Handle window closing"""
