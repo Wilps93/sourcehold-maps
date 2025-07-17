@@ -97,9 +97,7 @@ jobs:
           
       # Создание инсталлера
       - name: Build installer
-        run: |
-          echo "Building installer with NSIS..."
-          makensis installer.nsi
+        run: '"C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi'
           
       # Проверка инсталлера
       - name: Check installer

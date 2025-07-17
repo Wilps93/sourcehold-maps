@@ -42,16 +42,18 @@ jobs:
         with:
           arch: x64
           
-      # Установка NSIS через winget
-      - name: Install NSIS
+      # Установка Chocolatey и NSIS
+      - name: Install Chocolatey and NSIS
+        shell: powershell
         run: |
-          echo "Installing NSIS via winget..."
-          winget install NSIS.NSIS
-          
-          echo "Adding NSIS to PATH..."
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          choco install nsis -y
           $env:PATH += ";C:\Program Files (x86)\NSIS"
-          echo "NSIS_PATH=C:\Program Files (x86)\NSIS" >> $env:GITHUB_ENV
-          
+          echo "NSIS_PATH=C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_ENV -Append
+          & "C:\Program Files (x86)\NSIS\makensis.exe" /VERSION
+
       # Установка Python зависимостей
       - name: Install Python dependencies
         run: |
@@ -92,9 +94,7 @@ jobs:
           
       # Создание инсталлера
       - name: Build installer
-        run: |
-          echo "Building installer with NSIS..."
-          makensis installer.nsi
+        run: '"C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi'
           
       # Проверка инсталлера
       - name: Check installer
