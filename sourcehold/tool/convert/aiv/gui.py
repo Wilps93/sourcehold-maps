@@ -52,12 +52,12 @@ class AIV2JSONGui(tb.Window):
         self.log.grid(row=6, column=0, columnspan=3, padx=10, pady=(0,10), sticky=NSEW)
         self.grid_rowconfigure(6, weight=1)
 
-        # Project by Sourcehold (clickable 'Sourcehold')
-        project_frame = tb.Frame(self)
-        project_frame.grid(row=7, column=0, columnspan=3, sticky=W, padx=10, pady=(0,2))
-        project_label = tb.Label(project_frame, text="Project by ", anchor=W)
-        project_label.pack(side=LEFT)
-        sourcehold_link = tb.Label(project_frame, text="Sourcehold", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
+        # Code developed by Gynt (sourcehold) (clickable '(sourcehold)')
+        dev_frame = tb.Frame(self)
+        dev_frame.grid(row=7, column=0, columnspan=3, sticky=W, padx=10, pady=(0,2))
+        dev_label = tb.Label(dev_frame, text="Code developed by Gynt ", anchor=W)
+        dev_label.pack(side=LEFT)
+        sourcehold_link = tb.Label(dev_frame, text="(sourcehold)", foreground="#2563eb", cursor="hand2", anchor=W, font=(None, 10, 'underline'))
         sourcehold_link.pack(side=LEFT)
         sourcehold_link.bind("<Button-1>", lambda e: webbrowser.open_new_tab("https://github.com/sourcehold"))
 
