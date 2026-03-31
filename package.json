@@ -1,7 +1,7 @@
 {
   "name": "sourcehold-maps-gui",
   "version": "0.1.0",
-  "homepage": "https://sourcehold.github.io/sourcehold-maps",
+  "homepage": "https://Wilps93.github.io/sourcehold-maps",
   "private": true,
   "config-overrides-path": "config-overrides.js",
   "engines": {

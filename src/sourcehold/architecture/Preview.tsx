@@ -5,7 +5,14 @@ export class Preview extends CompressedSection {
   preview_size: any
   deserialize_from (buffer: InterpretationBuffer) {
     this.preview_size = buffer.readInt()
+    const before = buffer.index
     super.deserialize_from(buffer)
+    const consumed = buffer.index - before
+    // CrusaderDE: some maps have preview_size > actual compressed section size
+    // Skip extra bytes to stay aligned
+    if (this.preview_size > consumed) {
+      buffer.readBytes(this.preview_size - consumed)
+    }
     return this
   }
 

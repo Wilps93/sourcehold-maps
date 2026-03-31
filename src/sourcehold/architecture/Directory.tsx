@@ -20,6 +20,12 @@ export class Directory extends Structure {
   u6: any
   sections: Section[] = []
   get max_sections_count() {
+    // Derive from directory_size when available (supports 100/150/200 slots)
+    if (this.directory_size != null && this.directory_size > 36) {
+      const n = (this.directory_size - 36) / 20
+      if (n === 100 || n === 150 || n === 200) return n
+    }
+    // Fallback for new/unknown maps
     return this.u1 >= 161 ? 150 : 100
   }
 

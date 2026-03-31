@@ -16,16 +16,33 @@ export class Map extends Structure {
   u3: MapPropertySection3 = new MapPropertySection3()
   u4: MapPropertySection4 = new MapPropertySection4()
   ud: any
+  restart_info: Uint8Array = new Uint8Array(0)
+  _is_crusader_de: boolean = false
   directory: Directory = new Directory()
   deserialize_from(buffer: InterpretationBuffer) {
     this.magic = buffer.readInt()
+    this._is_crusader_de = (this.magic === 0xFFFFFFFE)
+
     this.preview = new Preview().deserialize_from(buffer)
     this.description = new Description().deserialize_from(buffer)
     this.u1 = new MapPropertySection1().deserialize_from(buffer)
     this.u2 = new MapPropertySection2().deserialize_from(buffer)
     this.u3 = new MapPropertySection3().deserialize_from(buffer)
     this.u4 = new MapPropertySection4().deserialize_from(buffer)
-    this.ud = buffer.readInt()
+
+    if (this._is_crusader_de) {
+      // CrusaderDE: restart_info block (size + data) or zero padding between u4 and directory
+      const next_val = buffer.readInt()
+      if (next_val === 0) {
+        this.restart_info = new Uint8Array(0)
+      } else {
+        this.restart_info = buffer.readBytes(next_val)
+      }
+      this.ud = 0
+    } else {
+      this.ud = buffer.readInt()
+      this.restart_info = new Uint8Array(0)
+    }
 
     this.directory = new Directory().deserialize_from(buffer)
     return this
@@ -39,7 +56,17 @@ export class Map extends Structure {
     this.u2.serialize_to(buffer)
     this.u3.serialize_to(buffer)
     this.u4.serialize_to(buffer)
-    buffer.writeInt(this.ud)
+
+    if (this._is_crusader_de) {
+      if (this.restart_info && this.restart_info.length > 0) {
+        buffer.writeInt(this.restart_info.length)
+        buffer.writeBytes(this.restart_info)
+      } else {
+        buffer.writeInt(0)
+      }
+    } else {
+      buffer.writeInt(this.ud)
+    }
 
     this.directory.serialize_to(buffer)
 
@@ -53,7 +80,7 @@ export class Map extends Structure {
   }
 
   async pack() {
-    this.magic = 0xFFFFFFFF
+    this.magic = this._is_crusader_de ? 0xFFFFFFFE : 0xFFFFFFFF
     await this.preview.pack()
     await this.description.pack()
     await this.directory.pack()
@@ -105,6 +132,10 @@ export class Map extends Structure {
     zip.file('u3', this.u3.get_data())
     zip.file('u4', this.u4.get_data())
     zip.file('ud', this.ud.toString())
+    zip.file('is_crusader_de', this._is_crusader_de ? '1' : '0')
+    if (this._is_crusader_de && this.restart_info.length > 0) {
+      zip.file('restart_info', this.restart_info)
+    }
 
     return zip
   }
@@ -215,6 +246,18 @@ export class Map extends Structure {
     this.u4 = new MapPropertySection4()
     this.u4.set_data(await ru4.async('uint8array'))
     this.ud = parseInt(await rud.async('string'))
+
+    // CrusaderDE support
+    const is_de_file = zip.file('is_crusader_de')
+    if (is_de_file !== null) {
+      this._is_crusader_de = (await is_de_file.async('string')) === '1'
+    }
+    const restart_file = zip.file('restart_info')
+    if (restart_file !== null) {
+      this.restart_info = await restart_file.async('uint8array')
+    } else {
+      this.restart_info = new Uint8Array(0)
+    }
 
     return this
   }
