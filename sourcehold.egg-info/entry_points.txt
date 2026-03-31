@@ -1,0 +1,2 @@
+[console_scripts]
+sourcehold = sourcehold:entry_point

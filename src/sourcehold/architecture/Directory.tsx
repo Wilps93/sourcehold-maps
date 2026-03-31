@@ -118,10 +118,10 @@ export class Directory extends Structure {
     this.directory_size = (20 * this.max_sections_count) + 36
   }
 
-  section_for_index(index: number) {
+  section_for_index(index: number): Section | undefined {
     const i = this.section_indices.indexOf(index)
     if (i === -1) {
-      throw Error('index not found in directory')
+      return undefined
     }
     return this.sections[i]
   }

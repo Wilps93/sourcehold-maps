@@ -16,7 +16,14 @@ const OldTileExplorer = (props: { map: Map, sectionIndex: number; continuousColo
     )
   }
 
-  const section = map.directory.sections[map.directory.section_indices.indexOf(sectionIndex)]
+  const sectionIdx = map.directory.section_indices.indexOf(sectionIndex)
+  const section = sectionIdx !== -1 ? map.directory.sections[sectionIdx] : undefined
+
+  if (section === undefined) {
+    return (
+      <div>Section {sectionIndex} not found in this map. Select a different section from the dropdown.</div>
+    )
+  }
 
   const buffer = new InterpretationBuffer(new Uint8ClampedArray(section.get_data()).buffer)
 

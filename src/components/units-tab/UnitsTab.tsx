@@ -13,6 +13,10 @@ const unitsDataAtom = atom((get) => {
   }
 
   const unitsSection = mapState.directory.section_for_index(1015)
+  if (unitsSection === undefined) {
+    console.error('Units section (1015) not found in this map')
+    return new DataView(new Uint8Array().buffer)
+  }
   const unitsData = unitsSection.get_data()
   if (unitsData.byteLength % CRUSADER_UNIT_SIZE !== 0) {
     console.error('Current GUI does not support non Crusader maps')

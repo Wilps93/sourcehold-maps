@@ -1,0 +1,5 @@
+pymem
+Pillow
+dclimplode
+numpy
+opencv-python
